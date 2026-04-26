@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@/components/Icon";
+import { useAuth } from "@/auth/AuthContext";
+import { toast } from "@/hooks/use-toast";
 import dome from "@/assets/dome-jerusalem.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [show, setShow] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen w-full bg-surface-dim flex justify-center">
@@ -41,7 +47,15 @@ const Login = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                navigate("/discover");
+                setError(null);
+                const result = login(email, password);
+                if (result.ok === false) {
+                  setError(result.error);
+                  toast({ title: "Access Denied", description: result.error, variant: "destructive" });
+                  return;
+                }
+                toast({ title: "Welcome", description: "Credentials verified. Entering gateway." });
+                navigate(result.redirect, { replace: true });
               }}
               className="space-y-5"
             >
@@ -55,7 +69,10 @@ const Login = () => {
                     id="email"
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
+                    autoComplete="email"
                     className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-surface-high/60 ghost-border text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all"
                   />
                 </div>
@@ -71,7 +88,10 @@ const Login = () => {
                     id="password"
                     type={show ? "text" : "password"}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
+                    autoComplete="current-password"
                     className="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-surface-high/60 ghost-border text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all"
                   />
                   <button
@@ -90,6 +110,12 @@ const Login = () => {
                 </div>
               </div>
 
+              {error && (
+                <div role="alert" className="rounded-xl border border-crimson/40 bg-crimson/10 px-4 py-3 text-xs uppercase tracking-widest text-crimson font-bold text-center">
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
                 className="w-full flex justify-center items-center gap-2 py-4 rounded-full bg-primary text-primary-foreground font-serif font-bold text-base glow-gold hover:bg-primary-glow transition-all active:scale-[0.98]"
@@ -99,11 +125,10 @@ const Login = () => {
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/discover" className="font-bold text-secondary hover:underline">
-                Sign Up
-              </Link>
+            <p className="mt-6 text-center text-xs text-muted-foreground leading-relaxed">
+              Access is restricted to provisioned heritage stewards.
+              <br />
+              Contact your <span className="text-secondary font-bold">Thakira Administrator</span> to request credentials.
             </p>
 
             <div className="mt-6 flex items-center justify-center gap-4">

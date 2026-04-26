@@ -4,6 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+import { AuthProvider } from "@/auth/AuthContext";
+import { ProtectedRoute } from "@/auth/ProtectedRoute";
+
 import Login from "./pages/Login";
 import RecoveryStep1 from "./pages/RecoveryStep1";
 import RecoveryStep2 from "./pages/RecoveryStep2";
@@ -31,39 +34,45 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const memberOnly = ["member"] as const;
+const adminOnly = ["admin"] as const;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/recover" element={<RecoveryStep1 />} />
-          <Route path="/recover/verify" element={<RecoveryStep2 />} />
-          <Route path="/recover/reset" element={<RecoveryStep3 />} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/recover" element={<RecoveryStep1 />} />
+            <Route path="/recover/verify" element={<RecoveryStep2 />} />
+            <Route path="/recover/reset" element={<RecoveryStep3 />} />
 
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/archive" element={<Archive />} />
-          <Route path="/saved" element={<HeritageCollection />} />
-          <Route path="/journey" element={<Journey />} />
-          <Route path="/contribute" element={<Contribute />} />
-          <Route path="/submissions" element={<SubmissionStatus />} />
-          <Route path="/submissions/rejected" element={<SubmissionRejected />} />
-          <Route path="/vr" element={<VrLoading />} />
-          <Route path="/profile" element={<StorytellerProfile />} />
+            {/* Community Member routes */}
+            <Route path="/discover" element={<ProtectedRoute allow={[...memberOnly]}><Discover /></ProtectedRoute>} />
+            <Route path="/archive" element={<ProtectedRoute allow={[...memberOnly]}><Archive /></ProtectedRoute>} />
+            <Route path="/saved" element={<ProtectedRoute allow={[...memberOnly]}><HeritageCollection /></ProtectedRoute>} />
+            <Route path="/journey" element={<ProtectedRoute allow={[...memberOnly]}><Journey /></ProtectedRoute>} />
+            <Route path="/contribute" element={<ProtectedRoute allow={[...memberOnly]}><Contribute /></ProtectedRoute>} />
+            <Route path="/submissions" element={<ProtectedRoute allow={[...memberOnly]}><SubmissionStatus /></ProtectedRoute>} />
+            <Route path="/submissions/rejected" element={<ProtectedRoute allow={[...memberOnly]}><SubmissionRejected /></ProtectedRoute>} />
+            <Route path="/vr" element={<ProtectedRoute allow={[...memberOnly]}><VrLoading /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute allow={[...memberOnly]}><StorytellerProfile /></ProtectedRoute>} />
+            <Route path="/quiz" element={<ProtectedRoute allow={[...memberOnly]}><Quiz /></ProtectedRoute>} />
+            <Route path="/daleel" element={<ProtectedRoute allow={[...memberOnly]}><Daleel /></ProtectedRoute>} />
 
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/daleel" element={<Daleel />} />
+            {/* Administrator routes */}
+            <Route path="/admin" element={<ProtectedRoute allow={[...adminOnly]}><AdminOverview /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute allow={[...adminOnly]}><AdminUsers /></ProtectedRoute>} />
+            <Route path="/admin/maintenance" element={<ProtectedRoute allow={[...adminOnly]}><AdminMaintenance /></ProtectedRoute>} />
+            <Route path="/admin/logs" element={<ProtectedRoute allow={[...adminOnly]}><AdminLogs /></ProtectedRoute>} />
 
-          <Route path="/admin" element={<AdminOverview />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/maintenance" element={<AdminMaintenance />} />
-          <Route path="/admin/logs" element={<AdminLogs />} />
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
