@@ -21,6 +21,8 @@ import SubmissionStatus from "./pages/SubmissionStatus";
 import SubmissionRejected from "./pages/SubmissionRejected";
 import VrLoading from "./pages/VrLoading";
 import StorytellerProfile from "./pages/StorytellerProfile";
+import ChapterDetail from "./pages/ChapterDetail";
+import ArchiveDetail from "./pages/ArchiveDetail";
 
 import Quiz from "./pages/Quiz";
 import Daleel from "./pages/Daleel";
