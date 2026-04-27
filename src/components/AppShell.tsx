@@ -2,6 +2,7 @@ import { useState, useEffect, ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/auth/AuthContext";
 
 /** Mobile-frame app shell: top app bar, side drawer, bottom nav, page transitions. */
 interface AppShellProps {
