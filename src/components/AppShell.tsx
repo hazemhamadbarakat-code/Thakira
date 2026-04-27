@@ -27,8 +27,8 @@ interface AppShellProps {
 
 const userNav = [
   { to: "/archive", label: "Archive", icon: "folder" },
-  { to: "/discover", label: "Discover", icon: "explore" },
-  { to: "/saved", label: "Saved", icon: "bookmark" },
+  { to: "/quiz", label: "Quiz", icon: "quiz" },
+  { to: "/journey", label: "Chapters", icon: "history_edu" },
   { to: "/profile", label: "Profile", icon: "person" },
 ];
 const adminNav = [
@@ -38,15 +38,15 @@ const adminNav = [
   { to: "/admin/logs", label: "Logs", icon: "terminal" },
 ];
 
-const drawerLinks = [
-  { to: "/discover", label: "Discover", icon: "explore" },
-  { to: "/journey", label: "Historical Journey", icon: "history_edu" },
-  { to: "/contribute", label: "Contribute a Memory", icon: "add_circle" },
-  { to: "/quiz", label: "Heritage Quiz", icon: "quiz" },
-  { to: "/daleel", label: "Daleel Assistant", icon: "auto_awesome" },
-  { to: "/vr", label: "VR Immersion", icon: "view_in_ar" },
-  { to: "/profile", label: "Master Storyteller", icon: "workspace_premium" },
-  { to: "/admin", label: "Admin Console", icon: "shield_person" },
+const baseDrawerLinks = [
+  { to: "/discover", label: "Discover", icon: "explore", roles: ["member"] as const },
+  { to: "/journey", label: "Historical Journey", icon: "history_edu", roles: ["member"] as const },
+  { to: "/contribute", label: "Contribute a Memory", icon: "add_circle", roles: ["member"] as const },
+  { to: "/quiz", label: "Heritage Quiz", icon: "quiz", roles: ["member"] as const },
+  { to: "/daleel", label: "Daleel Assistant", icon: "auto_awesome", roles: ["member"] as const },
+  { to: "/vr", label: "VR Immersion", icon: "view_in_ar", roles: ["member"] as const },
+  { to: "/profile", label: "Master Storyteller", icon: "workspace_premium", roles: ["admin"] as const },
+  { to: "/admin", label: "Admin Console", icon: "shield_person", roles: ["admin"] as const },
 ];
 
 export const AppShell = ({
