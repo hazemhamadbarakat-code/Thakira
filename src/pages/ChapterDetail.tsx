@@ -1,20 +1,27 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
-import { getAdjacentChapters, getChapterById, type Chapter } from "@/data/chapters";
+import { useChapter } from "@/hooks/useChapters";
+import { useAuth } from "@/auth/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
-/**
- * ChapterDetailScreen — renders a single chapter using the design provided
- * in the Chapters_modification pack (timeline → primary story card → bento
- * widgets → FAB). Adapted to project semantic tokens at the integration
- * boundary; layout, hierarchy, and content preserved verbatim.
- */
 const ChapterDetail = () => {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
-  const chapter = getChapterById(chapterId);
+  const { role } = useAuth();
+  const { chapter, prev, next, index, total, loading } = useChapter(chapterId);
 
-  // Edge case: invalid id
+  if (loading) {
+    return (
+      <AppShell title="Historical Journey" back>
+        <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground py-12">
+          Loading chapter…
+        </p>
+      </AppShell>
+    );
+  }
+
   if (!chapter) {
     return (
       <AppShell title="Chapter not found" back>
@@ -33,7 +40,22 @@ const ChapterDetail = () => {
     );
   }
 
-  const { prev, next, index, total } = getAdjacentChapters(chapter.id);
+  const toggleVisibility = async () => {
+    const next = chapter.visibility === "public" ? "archived" : "public";
+    const { error } = await supabase
+      .from("chapters")
+      .update({ visibility: next })
+      .eq("id", chapter.id);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({
+        title: "Visibility updated",
+        description: `Chapter is now ${next}.`,
+      });
+    }
+  };
+
 
   return (
     <AppShell title="Historical Journey" back>
