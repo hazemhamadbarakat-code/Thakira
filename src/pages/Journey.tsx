@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
-import { CHAPTERS } from "@/data/chapters";
+import { useChapters } from "@/hooks/useChapters";
 
 /**
  * ChaptersScreen
- * Index of all historical-journey chapters. Opens ChapterDetailScreen
- * at /journey/:chapterId. Replaces the previous single-chapter Journey view.
+ * Index of all historical-journey chapters from Lovable Cloud. Members see
+ * only chapters with visibility = 'public'; admins additionally see archived
+ * chapters (badged) and can toggle visibility from the chapter detail screen.
  */
 const Journey = () => {
+  const { chapters: CHAPTERS, loading } = useChapters();
   return (
     <AppShell title="Historical Journey">
       <section className="px-6 pt-2 pb-4">
@@ -36,7 +38,7 @@ const Journey = () => {
             >
               <span className="w-3 h-3 rounded-full bg-surface-bright border border-border group-hover:bg-primary group-hover:glow-soft transition-all" />
               <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">
-                {c.timeline.find((t) => t.active)?.label ?? c.timeline[0].label}
+                {c.timeline.find((t) => t.active)?.label ?? c.timeline[0]?.label ?? ""}
               </span>
             </Link>
           ))}
@@ -45,6 +47,16 @@ const Journey = () => {
 
       {/* Chapter cards */}
       <section className="px-6 space-y-4 pb-8">
+        {loading && (
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground py-10">
+            Loading chapters…
+          </p>
+        )}
+        {!loading && CHAPTERS.length === 0 && (
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground py-10">
+            No chapters available yet.
+          </p>
+        )}
         {CHAPTERS.map((c, i) => (
           <Link
             key={c.id}
@@ -64,6 +76,11 @@ const Journey = () => {
                 <span className="absolute top-4 left-4 inline-block bg-background/70 backdrop-blur-md ghost-border text-primary text-[10px] uppercase tracking-[0.2em] font-semibold px-3 py-1.5 rounded-full">
                   Chapter {String(i + 1).padStart(2, "0")}
                 </span>
+                {c.visibility === "archived" && (
+                  <span className="absolute top-4 right-4 inline-block bg-crimson/80 text-destructive-foreground text-[10px] uppercase tracking-[0.2em] font-bold px-3 py-1.5 rounded-full">
+                    Archived
+                  </span>
+                )}
               </div>
 
               <div className="p-5">

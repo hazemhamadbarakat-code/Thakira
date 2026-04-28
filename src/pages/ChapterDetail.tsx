@@ -1,20 +1,27 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
-import { getAdjacentChapters, getChapterById, type Chapter } from "@/data/chapters";
+import { useChapter } from "@/hooks/useChapters";
+import { useAuth } from "@/auth/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
-/**
- * ChapterDetailScreen — renders a single chapter using the design provided
- * in the Chapters_modification pack (timeline → primary story card → bento
- * widgets → FAB). Adapted to project semantic tokens at the integration
- * boundary; layout, hierarchy, and content preserved verbatim.
- */
 const ChapterDetail = () => {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
-  const chapter = getChapterById(chapterId);
+  const { role } = useAuth();
+  const { chapter, prev, next, index, total, loading } = useChapter(chapterId);
 
-  // Edge case: invalid id
+  if (loading) {
+    return (
+      <AppShell title="Historical Journey" back>
+        <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground py-12">
+          Loading chapter…
+        </p>
+      </AppShell>
+    );
+  }
+
   if (!chapter) {
     return (
       <AppShell title="Chapter not found" back>
@@ -33,11 +40,47 @@ const ChapterDetail = () => {
     );
   }
 
-  const { prev, next, index, total } = getAdjacentChapters(chapter.id);
+  const toggleVisibility = async () => {
+    const next = chapter.visibility === "public" ? "archived" : "public";
+    const { error } = await supabase
+      .from("chapters")
+      .update({ visibility: next })
+      .eq("id", chapter.id);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({
+        title: "Visibility updated",
+        description: `Chapter is now ${next}.`,
+      });
+    }
+  };
+
 
   return (
     <AppShell title="Historical Journey" back>
       <article className="px-4 pt-2 pb-8 space-y-8">
+        {role === "admin" && (
+          <div className="flex items-center justify-between rounded-2xl bg-surface-container ghost-border px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Icon
+                name={chapter.visibility === "public" ? "visibility" : "visibility_off"}
+                className={chapter.visibility === "public" ? "text-secondary" : "text-crimson"}
+                size={20}
+              />
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Visibility</p>
+                <p className="font-serif text-sm text-foreground capitalize">{chapter.visibility}</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-[11px] uppercase tracking-[0.2em] font-bold glow-soft hover:bg-primary-glow"
+            >
+              {chapter.visibility === "public" ? "Archive" : "Make Public"}
+            </button>
+          </div>
+        )}
         {/* ---------- Timeline slider ---------- */}
         <section className="relative py-4">
           <div className="absolute top-1/2 left-0 right-0 h-px bg-border/40 -translate-y-1/2" />
@@ -213,7 +256,7 @@ const Quote = ({ text }: { text: string }) => (
   </div>
 );
 
-const ReadArchiveCta = ({ chapterId }: { chapterId: Chapter["id"] }) => (
+const ReadArchiveCta = ({ chapterId }: { chapterId: string }) => (
   <Link
     to={`/archive/${chapterId}`}
     className="inline-flex items-center gap-2 text-primary font-semibold text-xs uppercase tracking-[0.25em] hover:text-primary-glow transition-colors group/btn"

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import RecoveryStep1 from "./pages/RecoveryStep1";
 import RecoveryStep2 from "./pages/RecoveryStep2";
 import RecoveryStep3 from "./pages/RecoveryStep3";
@@ -49,6 +50,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/recover" element={<RecoveryStep1 />} />
             <Route path="/recover/verify" element={<RecoveryStep2 />} />
             <Route path="/recover/reset" element={<RecoveryStep3 />} />

@@ -63,7 +63,7 @@ export const AppShell = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, logout } = useAuth();
 
   // Close drawer on route change
   useEffect(() => setDrawerOpen(false), [location.pathname]);
@@ -218,8 +218,9 @@ export const AppShell = ({
 
               <div className="gold-divider my-4" />
               <button
-                onClick={() => {
+                onClick={async () => {
                   setDrawerOpen(false);
+                  await logout();
                   navigate("/login");
                 }}
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl text-muted-foreground hover:text-crimson hover:bg-crimson/10 transition-colors text-sm"

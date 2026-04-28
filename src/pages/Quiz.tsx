@@ -2,87 +2,32 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
+import { useQuiz, type QuizQuestion } from "@/hooks/useQuiz";
 
 /**
- * Heritage Quiz — Recent History of Palestine (Level 4 · Modern Era)
- * --------------------------------------------------------------------
- * Flow:  Intro → Q1 → Feedback → Q2 → ... → Q5 → Feedback → Results
- *
- * The bottom navigation (AppShell) stays visible across every step and
- * highlights the "Quiz" tab. Each step exposes a back button (in-flow
- * navigation) and an exit (X) confirmation that returns to /discover.
- * The results screen is unreachable until the user has answered all 5
- * questions — guarded by `stage` state, not by a route the user can
- * type into the URL bar.
+ * Heritage Quiz — questions sourced from Lovable Cloud (`quizzes` + `questions`).
+ * Flow: Intro → Q1 → Feedback → ... → Final → Results.
+ * Bottom nav stays visible and highlights the Quiz tab.
  */
 
 interface Question {
   id: number;
   prompt: string;
   options: string[];
-  /** index of the correct option in `options` */
   correctIndex: number;
-  /** Short explanation shown on the feedback screen. */
   rationale: string;
   hint?: string;
 }
 
-const QUESTIONS: Question[] = [
-  {
-    id: 1,
-    prompt: "Which city was historically known as the 'Bride of the Sea'?",
-    options: ["Jerusalem", "Haifa", "Jaffa", "Gaza"],
-    correctIndex: 2,
-    rationale:
-      "Jaffa — Arūs al-Bahr — earned the title for its ancient harbour and the famous orange groves that lined its coast.",
-    hint: "Think of the ancient citrus trade and its world-famous orange groves.",
-  },
-  {
-    id: 2,
-    prompt:
-      "Which ancient city is home to Hisham's Palace, famous for its intricate 'Tree of Life' floor mosaic?",
-    options: ["Nablus", "Jericho", "Hebron", "Bethlehem"],
-    correctIndex: 1,
-    rationale:
-      "Hisham's Palace (Khirbat al-Mafjar) sits just north of Jericho and dates to the Umayyad period (8th c. CE).",
-    hint: "It is the oldest continuously inhabited city in the world.",
-  },
-  {
-    id: 3,
-    prompt:
-      "Which event in 1948 is commemorated by Palestinians as the 'Nakba' (catastrophe)?",
-    options: [
-      "The fall of the Ottoman Empire",
-      "The mass displacement during the establishment of Israel",
-      "The Six-Day War",
-      "The First Intifada",
-    ],
-    correctIndex: 1,
-    rationale:
-      "The Nakba refers to the displacement of approximately 750,000 Palestinians during the 1948 war and the loss of historic Palestine.",
-    hint: "It marks a pivotal demographic and territorial rupture in modern Palestinian history.",
-  },
-  {
-    id: 4,
-    prompt:
-      "This coastal city was a major centre for the mother-of-pearl industry and served as a primary port for pilgrims travelling to Jerusalem.",
-    options: ["Akka", "Ashkelon", "Haifa", "Jaffa"],
-    correctIndex: 0,
-    rationale:
-      "Akka (Acre) — its old port welcomed Mediterranean pilgrims for centuries and its artisans were renowned for mother-of-pearl craftsmanship.",
-    hint: "Its Crusader-era walls still stand, and Napoleon famously failed to take it in 1799.",
-  },
-  {
-    id: 5,
-    prompt:
-      "Which Palestinian poet authored 'Identity Card' and became a defining literary voice of the 20th century?",
-    options: ["Ghassan Kanafani", "Edward Said", "Mahmoud Darwish", "Fadwa Tuqan"],
-    correctIndex: 2,
-    rationale:
-      "Mahmoud Darwish (1941–2008) wrote 'Bitaqat Hawiyya' (Identity Card) in 1964; it remains an anthem of Palestinian identity.",
-    hint: "He was born in al-Birwa and is widely regarded as Palestine's national poet.",
-  },
-];
+const adapt = (qs: QuizQuestion[]): Question[] =>
+  qs.map((q, i) => ({
+    id: i + 1,
+    prompt: q.prompt,
+    options: q.options,
+    correctIndex: q.correctIndex,
+    rationale: q.rationale,
+    hint: q.hint,
+  }));
 
 type Stage =
   | { kind: "intro" }
@@ -92,6 +37,8 @@ type Stage =
 
 const Quiz = () => {
   const navigate = useNavigate();
+  const { questions: dbQuestions, loading: quizLoading } = useQuiz();
+  const QUESTIONS = useMemo(() => adapt(dbQuestions), [dbQuestions]);
   const [stage, setStage] = useState<Stage>({ kind: "intro" });
   /** picked option per question id (undefined = unanswered) */
   const [answers, setAnswers] = useState<Record<number, number>>({});

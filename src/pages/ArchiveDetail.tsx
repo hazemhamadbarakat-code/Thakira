@@ -1,17 +1,20 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
-import { getChapterById } from "@/data/chapters";
+import { useChapter } from "@/hooks/useChapters";
 
-/**
- * ArchiveDetailScreen — modal-style deep dive on a chapter's archival
- * record. Mirrors the structure of the provided archive_detail HTMLs:
- * floating close button, horizontal gallery, sticky era header, intro
- * body, key-points card, Daleel insight aside.
- */
 const ArchiveDetail = () => {
   const { archiveId } = useParams<{ archiveId: string }>();
   const navigate = useNavigate();
-  const chapter = getChapterById(archiveId);
+  const { chapter, loading } = useChapter(archiveId);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6">
+        <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
+
 
   // Edge case: invalid id
   if (!chapter) {
