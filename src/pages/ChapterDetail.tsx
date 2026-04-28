@@ -60,6 +60,27 @@ const ChapterDetail = () => {
   return (
     <AppShell title="Historical Journey" back>
       <article className="px-4 pt-2 pb-8 space-y-8">
+        {role === "admin" && (
+          <div className="flex items-center justify-between rounded-2xl bg-surface-container ghost-border px-4 py-3">
+            <div className="flex items-center gap-3">
+              <Icon
+                name={chapter.visibility === "public" ? "visibility" : "visibility_off"}
+                className={chapter.visibility === "public" ? "text-secondary" : "text-crimson"}
+                size={20}
+              />
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Visibility</p>
+                <p className="font-serif text-sm text-foreground capitalize">{chapter.visibility}</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-[11px] uppercase tracking-[0.2em] font-bold glow-soft hover:bg-primary-glow"
+            >
+              {chapter.visibility === "public" ? "Archive" : "Make Public"}
+            </button>
+          </div>
+        )}
         {/* ---------- Timeline slider ---------- */}
         <section className="relative py-4">
           <div className="absolute top-1/2 left-0 right-0 h-px bg-border/40 -translate-y-1/2" />
