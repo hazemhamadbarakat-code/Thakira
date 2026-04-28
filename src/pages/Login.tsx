@@ -45,13 +45,20 @@ const Login = () => {
             </div>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 setError(null);
-                const result = login(email, password);
+                const result = await login(email, password);
                 if (result.ok === false) {
                   setError(result.error);
-                  toast({ title: "Access Denied", description: result.error, variant: "destructive" });
+                  toast({
+                    title:
+                      result.code === "suspended"
+                        ? "Account Suspended"
+                        : "Access Denied",
+                    description: result.error,
+                    variant: "destructive",
+                  });
                   return;
                 }
                 toast({ title: "Welcome", description: "Credentials verified. Entering gateway." });
