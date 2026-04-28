@@ -235,7 +235,7 @@ const Quote = ({ text }: { text: string }) => (
   </div>
 );
 
-const ReadArchiveCta = ({ chapterId }: { chapterId: Chapter["id"] }) => (
+const ReadArchiveCta = ({ chapterId }: { chapterId: string }) => (
   <Link
     to={`/archive/${chapterId}`}
     className="inline-flex items-center gap-2 text-primary font-semibold text-xs uppercase tracking-[0.25em] hover:text-primary-glow transition-colors group/btn"
